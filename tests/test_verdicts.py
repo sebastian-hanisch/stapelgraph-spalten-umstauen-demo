@@ -94,7 +94,7 @@ def test_columns_verdict_two_states_and_numbers():
     assert kind == "warning" and text == ("3 × 3: 19 Spalten im Median (Maximum 107) von 5 464 Kanten in 7 Iterationen; das Preisproblem braucht 80 % der Zeit; der Wurzelknoten beweist das Optimum "
                                           "in 39 von 40 Buchten (mit dem kompakten LP: 31), die Wurzel ist in 36 ganzzahlig. In 1 Buchten müsste Branch and Price verzweigen.")
     kind, text = ev.verdict_columns(_cgstats(proven=40), "3 × 2")
-    assert kind == "info" and text.endswith("Verzweigen wäre hier nie nötig.")
+    assert kind == "info" and text.endswith("In dieser Stichprobe wäre Verzweigen nicht nötig.")
 
 
 def test_fix_verdict_two_states_and_numbers():

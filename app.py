@@ -77,7 +77,7 @@ with st.container(key="kopf"):
     st.title("🕸️ Die Spaltenformulierung: Stapelgraph und Spaltengenerierung")
 st.markdown(
     """
-Stück 7 hat das **kompakte Modell** gemessen. Hier die **Spaltenformulierung**: Eine **Spalte** ist der **Lebenslauf eines Stapels** (sein Inhalt in jeder Periode), die Spalten eines Stapels sind die **Pfade in einem Stapelgraphen**, ein **Master** koppelt die Stapel. Ihre LP-Schranke ist **nie schwächer** als die des kompakten Modells, die **Spaltengenerierung** braucht nur **wenige Spalten** – aber der Stapelgraph wächst schnell. Die Demo **rechnet das live** auf kleinen Buchten, zeigt die Pfade der Mini-Bucht und misst, **wie stark** die Schranke ist, **wie viele Spalten** reichen und **wann Branch and Price verzweigen müsste**.
+Stück 7 hat das **kompakte Modell** gemessen. Hier die **Spaltenformulierung**: Eine **Spalte** ist der **Lebenslauf eines Stapels** (sein Inhalt in jeder Periode), die Spalten eines Stapels sind die **Pfade in einem Stapelgraphen**, ein **Master** koppelt die Stapel. Ihre LP-Schranke war in allen gemessenen Buchten **nicht schwächer** als die des kompakten Modells, die **Spaltengenerierung** braucht im Verhältnis zu den Kanten nur **wenige Spalten** – aber der Stapelgraph wächst schnell. Die Demo **rechnet das live** auf kleinen Buchten, zeigt die Pfade der Mini-Bucht und misst, **wie stark** die Schranke ist, **wie viele Spalten** reichen und **wann Branch and Price verzweigen müsste**.
 
 Weiter unten: die Abschnitte **🔬 Experiment** (die Mini-Bucht von Hand, wie groß der Stapelgraph wird, wie stark die Schranke ist, wie viele Spalten reichen, wann verzweigt werden müsste, warum die Ordnungsbedingung nötig ist), **🚧 Wo die Annahmen enden** und der Expander **📐 Mathematische Formulierung**. Dies ist das achte Stück der Reihe „Umstauen: Untergrenze und Suche“.
 """
@@ -107,7 +107,7 @@ with st.sidebar:
     stacks = st.slider("Stapel", *bounds("stacks_slider"), key="stacks_slider", help="Wie viele Stapel die Bucht hat.")
     layers = st.slider("Lagen je Stapel", *bounds("layers_slider"), key="layers_slider", help="So viele Container stehen anfangs auf jedem Stapel.")
     extra = st.slider("Platz (Lagen über der Anfangshöhe)", *bounds("extra_slider"), key="extra_slider",
-                      help=f"Höchsthöhe = Lagen + Platz. Standard 2. Die vorberechneten Tabellen gelten für Platz 2. Die Spaltenformulierung wird live nur gerechnet, wenn die Stapelgraphen höchstens {num(C.LIVE_MAX_ARCS)} Kanten haben (rund 9 bis 10 Container).")
+                      help=f"Höchsthöhe = Lagen + Platz. Standard 2. Die vorberechneten Tabellen gelten für Platz 2. Die Spaltenformulierung wird live nur gerechnet, wenn die Stapelgraphen höchstens {num(C.LIVE_MAX_ARCS)} Kanten haben (bei Platz 2 rund 10 bis 12 Container, bei mehr Platz weniger).")
     seed = st.number_input("Bucht-Nummer (Seed)", *bounds("seed_input"), key="seed_input", step=1, help="Die Nummer bestimmt, wie die Abrufnummern auf die Plätze verteilt sind.")
     st.button("🎲 Neue Bucht würfeln", width="stretch", on_click=randomize_seed)
 
@@ -270,7 +270,7 @@ st.markdown(
 | Annahme | Was passiert, wenn sie verletzt ist | Wer setzt an |
 |---|---|---|
 | **Kein Verzweigen** | Die Demo löst den Wurzelknoten und zeigt, wann das Optimum dort nicht bewiesen ist. Echtes Branch and Price ist nicht gebaut. | – |
-| **Preisproblem im expliziten Stapelgraphen** | Ein kürzester Pfad im ausgeschriebenen Graphen ist exponentiell in der Containerzahl. Ein polynomiales Preisproblem (wie bei van Brink und van der Zwaan für das Premarshalling) ist für das Umstauen nicht hergeleitet. | – |
+| **Preisproblem im expliziten Stapelgraphen** | Ein kürzester Pfad im ausgeschriebenen Graphen wächst exponentiell mit der Stapelhöhe. Ein polynomiales Preisproblem (wie bei van Brink und van der Zwaan für das Premarshalling) ist für das Umstauen nicht hergeleitet. | – |
 | **Zeiten sind Einzelmessungen** | Python (Generierung, Preisproblem) gegen C++ (HiGHS), ein Lauf, eine Windows-Maschine; die Zeiten stehen als Befund nur im Vergleich der Größenordnungen. | – |
 | **Kleine Zellen** | 4 × 3 mit 8 und 3 × 4 mit 6 Buchten; Aussagen dort sind grob. | – |
 | **Nur bis 60 000 Kanten live** | Darüber zeigt die App die Größe des kompakten Modells und „nicht gerechnet“. | – |
@@ -294,7 +294,7 @@ with st.expander("📐 Mathematische Formulierung"):
 - *Ordnung:* für jedes $(t, b_1, b_2)$: $\sum_{s,e:\, b_2 \prec_A b_1} f_{s,e} \le 1 - \sum_{s,e:\, b_1 \prec_D b_2} f_{s,e}$, dabei $b_2 \prec_A b_1$ „in der Zugangsliste von $e$ steht $b_2$ vor $b_1$“ und $b_1 \prec_D b_2$ „in der Abgangsliste von $e$ steht $b_1$ vor $b_2$“. Ging $b_1$ vor $b_2$ ab, darf kein Stapel beide in der Reihenfolge $b_2$, $b_1$ aufnehmen.
 - *Ziel:* $\min \sum_{s,e} \text{Kosten}(e)\, f_{s,e}$.
 
-Mit ganzzahligen $f$ ist das **exakt** (Optimum gleich dem der Suche). Seine LP-Relaxation ist die **Schranke der Spaltenformulierung**; sie ist nie schwächer als die des kompakten Modells aus Stück 7 (Dantzig-Wolfe: der Master optimiert über die konvexe Hülle der ganzzahligen Stapel-Pfade).
+Mit ganzzahligen $f$ ist das **exakt** (Optimum gleich dem der Suche). Seine LP-Relaxation ist die **Schranke der Spaltenformulierung**; sie war in allen gemessenen Buchten nicht schwächer als die des kompakten Modells aus Stück 7 (ein Beweis dafür liegt für diese Konstruktion nicht vor; die Dantzig-Wolfe-Idee: der Master optimiert über die konvexe Hülle der ganzzahligen Stapel-Pfade).
 
 **Spaltengenerierung.** Master über die Pfade $P$ einer Teilmenge. Zu Dualwerten $\pi$ der Bilanz- und Ordnungsbedingungen und $\mu_s$ des Pfades ist der reduzierte Preis einer Kante ihre Kosten minus der Dualwerte ihrer Beiträge; das **Preisproblem** ist der kürzeste Pfad in $G_s$ (Knoten nach Periode geordnet, ein Durchlauf). Negativer Gesamtpreis minus $\mu_s$: der Pfad kommt hinzu. Ohne solchen Pfad ist der Master mit den erzeugten Spalten optimal für den ganzen Pfadfluss.
 

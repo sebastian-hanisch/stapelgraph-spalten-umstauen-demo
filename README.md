@@ -7,7 +7,7 @@ Achtes Stück der Konzepte-Reihe **„Umstauen: Untergrenze und Suche“** für 
 
 ## Warum dieses Problem
 
-Die LP-Schranke eines Modells entscheidet, wie viel eine Suche oder ein Branch-and-Bound beschneiden kann. Die Spaltenformulierung ist der klassische Weg zu einer **stärkeren** Schranke (Dantzig-Wolfe): Der Master optimiert über die konvexe Hülle der ganzzahligen Stapel-Pfade, die LP-Schranke ist deshalb **nie schwächer** als die des kompakten Modells. Hier die Messung, ob das beim Umstauen trägt: **Ja für die Schranke** (bei 3 × 3 beweist schon der Wurzelknoten das Optimum in 39 von 40 Buchten gegen 31 mit dem kompakten LP), **nein für die Größe**: Der Stapelgraph ist ab etwa 10 Containern größer als das kompakte Modell und wächst dann schnell, und das Preisproblem (ein kürzester Pfad im ausgeschriebenen Graphen) ist exponentiell in der Containerzahl. Die Hypothese der Gliederung („starke Untergrenzen, hoher Aufwand je Knoten“) trifft zu.
+Die LP-Schranke eines Modells entscheidet, wie viel eine Suche oder ein Branch-and-Bound beschneiden kann. Die Spaltenformulierung ist der klassische Weg zu einer **stärkeren** Schranke (Dantzig-Wolfe): Der Master optimiert über die konvexe Hülle der ganzzahligen Stapel-Pfade; die LP-Schranke war in allen gemessenen Buchten **nicht schwächer** als die des kompakten Modells (ein Beweis, dass das für diese Konstruktion so sein muss, liegt nicht vor). Hier die Messung, ob das beim Umstauen trägt: **Ja für die Schranke** (bei 3 × 3 beweist schon der Wurzelknoten das Optimum in 39 von 40 Buchten dieser Stichprobe gegen 31 mit dem kompakten LP; bei anderen Buchten seltener, etwa in 9 von 10), **nein für die Größe**: Der Stapelgraph ist im Median ab etwa 10 Containern größer als das kompakte Modell und wächst dann schnell (bis 12 Container gemessen), und das Preisproblem (ein kürzester Pfad im ausgeschriebenen Graphen) wächst mit der Stapelhöhe exponentiell. Die Hypothese der Gliederung („starke Untergrenzen, hoher Aufwand je Knoten“) trifft zu.
 
 ## Modell
 
@@ -23,7 +23,7 @@ Die LP-Schranke eines Modells entscheidet, wie viel eine Suche oder ein Branch-a
 
 ## Methodik
 
-- **Live:** Die Spaltengenerierung wird nur gerechnet, wenn die Stapelgraphen zusammen höchstens **60 000 Kanten** haben (rund 9 bis 10 Container); der Aufbau bricht bei dieser Zahl ab. Darüber zeigt die Demo die Größe des kompakten Modells und „nicht gerechnet“. Der ganzzahlige Pfadfluss läuft mit 60 s Zeitlimit; ohne Beweis behauptet die Demo keinen Wert.
+- **Live:** Die Spaltengenerierung wird nur gerechnet, wenn die Stapelgraphen zusammen höchstens **60 000 Kanten** haben (bei Platz 2 rund 10 bis 12 Container, bei mehr Platz weniger); der Aufbau bricht bei dieser Zahl ab. Darüber zeigt die Demo die Größe des kompakten Modells und „nicht gerechnet“. Der ganzzahlige Pfadfluss läuft mit 60 s Zeitlimit; ohne Beweis behauptet die Demo keinen Wert.
 - **Vorberechnet** (`stg_bands.json`, erzeugt von `generate_precomputed.py` in mehreren Prozessen; die Zelle 4 × 3 ist die langsamste): Größe der Stapelgraphen und Stärke der Schranke in sechs Zellen (3 × 2, 4 × 2, 3 × 3, 5 × 2, 4 × 3, 3 × 4), Spaltengenerierung in fünf (ohne 3 × 4: dort nur der volle Pfadfluss), die Gegenprobe ohne die Ordnungsbedingung in drei. **Dieselben festen Buchten wie in Stück 4 bis 7** (Seeds ab 0, Platz 2).
 - **Alle Zeiten sind Einzelmessungen** (Windows, ein Lauf) und schwanken. Die Spaltengenerierung und das Preisproblem laufen in Python, die LP-Löser (HiGHS) in C++: **Sekunden sind kein reines Maß der Verfahren.**
 - **Abschnitte der App:** Ergebnis (live); die Mini-Bucht von Hand (Pfade je Stapel); wie groß der Stapelgraph wird; wie stark die Schranke ist; wie viele Spalten reichen; wann Branch and Price verzweigen müsste; warum der Master die Ordnungsbedingung braucht; Grenzen; mathematische Formulierung.
@@ -54,7 +54,7 @@ Alle Zahlen sind Messungen an den festen Buchten 0 bis (Zahl der Buchten − 1) 
 | 4 × 3 (8) | 7 | 5 | **3** / 0 | 0, 0,5 | 0, 1 | **8 / 5** |
 | 3 × 4 (6) | 4 | 3 | **3** / 0 | 0, 0,5 | 0,5, 2 | nicht gerechnet |
 
-Die Schranke ist in **keiner einzigen** gespeicherten Bucht schwächer (14 von 226 Buchten strikt stärker), wie es die Dantzig-Wolfe-Theorie verlangt. „Im Wurzelknoten bewiesen“: aufgerundeter LP-Wert = Wert der Lösung aus den erzeugten Spalten.
+Die Schranke war in **keiner** der gemessenen Buchten schwächer (14 von 226 gespeicherten Buchten strikt stärker); die Dantzig-Wolfe-Theorie legt das nahe, für diese Konstruktion (Bilanz- und Ordnungsbedingungen) ist es nicht bewiesen. „Im Wurzelknoten bewiesen“: aufgerundeter LP-Wert = Wert der Lösung aus den erzeugten Spalten.
 
 **C: Wie viele Spalten braucht die Generierung?** (Wurzelknoten, Python; Zeiten schließen den Aufbau des Stapelgraphen ein)
 
@@ -90,10 +90,10 @@ Zwei Ursachen: Bei 3 × 3, Bucht 7, liegt der LP-Wert **unter** dem Optimum (ech
 |---|---|
 | **Ist die Formulierung korrekt?** | Der ganzzahlige Pfadfluss trifft das Optimum der Breitensuche und der Suche in allen geprüften Buchten (`tests/test_oracle_stapelgraph_spalten_umstauen.py`: alle 3 × 2, 4 × 2, 3 × 3); jede Lösung wird zu einer Hubfolge zusammengesetzt und mit einem eigenen Simulator nachgespielt. Mini-Bucht: Optimum 2, Gegenbeispiel aus Stück 1: 4, drei Blocker über der 1: 8. |
 | **Ist die Schranke stärker?** | Nie schwächer, oft stärker: bei 3 × 3 in 8 von 40 Buchten strikt, bei 4 × 3 in 3 von 8, bei 3 × 4 in 3 von 6; bei 3 × 2, 4 × 2 und 5 × 2 sind beide Schranken gleich dem Optimum. |
-| **Wie viele Spalten?** | Wenige: im Median 19 von 5 464 Kanten bei 3 × 3 (0,5 %), 116 von 91 338 bei 4 × 3 (0,05 %). |
-| **Wie wächst der Stapelgraph?** | Kleiner als das kompakte Modell bis 9 Container (Verhältnis 0,09 bis 0,90), ab 10 Containern größer (1,00 bei 5 × 2, 4,3 bei 4 × 3, 19,6 bei 3 × 4). Bei 3 × 3 mit Höchsthöhe 5 hat der größte Stapelgraph in der Vormessung rund 2,6 Millionen Pfade, aber nur 5 274 Zustände. |
+| **Wie viele Spalten?** | Wenige im Verhältnis zu den Kanten: im Median 19 von 5 464 Kanten bei 3 × 3 (0,5 %), 116 von 91 338 bei 4 × 3 (0,05 %). |
+| **Wie wächst der Stapelgraph?** | Im Median kleiner als das kompakte Modell bis 9 Container (Verhältnis 0,09 bis 0,90), bei 10 Containern gleich groß (1,00 bei 5 × 2), darüber größer (4,3 bei 4 × 3, 19,6 bei 3 × 4); einzelne 3 × 3-Buchten sind bis 3,4-fach größer. Bei 3 × 3 mit Höchsthöhe 5 hat der größte Stapelgraph in der Vormessung rund 2,6 Millionen Pfade, aber nur 5 274 Zustände. |
 | **Wo steckt die Zeit?** | Im Preisproblem: 82 bis 95 % ab 9 Containern (kürzester Pfad im ausgeschriebenen Graphen). Die Spaltengenerierung ist hier **langsamer** als das kompakte ILP aus Stück 7 (4 × 3: Median 19 s gegen 1,4 s), aber Python gegen C++. |
-| **Ist Verzweigen nötig?** | Selten: in 3 von 220 Buchten (zwei davon mit LP = Optimum, aber ohne die optimale Lösung im Spaltenvorrat). Echtes Branch and Price ist **nicht** gebaut. |
+| **Ist Verzweigen nötig?** | Bei kleinen Buchten selten, bei 3 × 3 bereits in rund jeder zehnten Bucht (in 3 von 220 gespeicherten Buchten; eine Nachprüfung mit 160 Buchten der Zelle 3 × 3 fand 15; zwei der drei gespeicherten mit LP = Optimum, aber ohne die optimale Lösung im Spaltenvorrat). Echtes Branch and Price ist **nicht** gebaut. |
 | **Braucht der Master (O)?** | Ja: Ohne die Ordnungsbedingung ist bei 3 × 3 das Optimum in 9 von 40 Buchten zu klein und in 17 die Lösung nicht als Hubfolge spielbar. |
 | **Die Mini-Bucht** | (1, 4), (5, 2), (6, 3), Höchsthöhe 4: 133 Knoten und 264 Kanten (das kompakte Modell hat 1 692 Variablen), 4 Iterationen, 7 Spalten, Wurzel-LP 2 und ganzzahlig. Das Preset „Die Mini-Bucht“ ist dieselbe Bucht mit vertauschten Stapeln und braucht 6 Spalten. |
 
@@ -103,8 +103,8 @@ Zwei Ursachen: Bei 3 × 3, Bucht 7, liegt der LP-Wert **unter** dem Optimum (ech
 
 ## Ehrliche Grenzen
 
-- **Kein Verzweigen.** Die Demo löst den Wurzelknoten und zeigt, wann das Optimum dort nicht bewiesen ist; echtes Branch and Price ist nicht gebaut. „Selten nötig“ gilt für 3 × 2 bis 3 × 3 (200 Buchten).
-- **Das Preisproblem ist ein kürzester Pfad im ausgeschriebenen Stapelgraphen** und damit exponentiell in der Containerzahl. Ein polynomiales Preisproblem wie bei van Brink und van der Zwaan wurde für das Umstauen **nicht** hergeleitet; ob es eines gibt, ist offen.
+- **Kein Verzweigen.** Die Demo löst den Wurzelknoten und zeigt, wann das Optimum dort nicht bewiesen ist; echtes Branch and Price ist nicht gebaut. „Selten nötig“ gilt für 3 × 2 und 4 × 2; bei 3 × 3 beruht es auf einer günstigen Stichprobe (1 von 40, in einer Nachprüfung mit 160 Buchten 15).
+- **Das Preisproblem ist ein kürzester Pfad im ausgeschriebenen Stapelgraphen** und damit exponentiell in der Stapelhöhe. Ein polynomiales Preisproblem wie bei van Brink und van der Zwaan wurde für das Umstauen **nicht** hergeleitet; ob es eines gibt, ist offen.
 - **Zeiten sind Einzelmessungen** (Python gegen C++, ein Lauf, eine Windows-Maschine). Der Vergleich 19 s gegen 1,4 s mischt Sprachen.
 - **Kleine Zellen:** 4 × 3 mit 8 und 3 × 4 mit 6 Buchten; Aussagen dort sind grob (3 von 8, 3 von 6).
 - **Eigene Konstruktion.** Zehendner und Feillet sind nur im Abstract gelesen; die Aussage, dass ihr Verfahren kleine und mittlere Instanzen löst, ist die des Abstracts.
@@ -168,7 +168,7 @@ pip install -r requirements-dev.txt
 pytest tests/ -v
 ```
 
-107 Tests, rund zwei bis drei Minuten (kleine Spaltengenerierungen werden live gerechnet).
+107 Tests, rund 240 Sekunden (eine Messung unter Windows; kleine Spaltengenerierungen werden live gerechnet).
 
 Gebaut mit Streamlit, Plotly, SciPy (HiGHS).
 

@@ -300,7 +300,7 @@ def verdict_columns(stats: dict, name: str) -> tuple[str, str]:
             f"(mit dem kompakten LP: {c['proven_compact']}), die Wurzel ist in {c['integral']} ganzzahlig.")
     if c["proven"] < c["n"]:
         return "warning", text + f" In {c['n'] - c['proven']} Buchten müsste Branch and Price verzweigen."
-    return "info", text + " Verzweigen wäre hier nie nötig."
+    return "info", text + " In dieser Stichprobe wäre Verzweigen nicht nötig."
 
 
 def verdict_fix(stats: dict, name: str) -> tuple[str, str]:
